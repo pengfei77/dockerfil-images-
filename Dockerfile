@@ -1,11 +1,8 @@
-# Container image that runs your code
 FROM centos:8
 
-# Copies your code file from your action repository to the filesystem path `/` of the container
-RUN yum update && \
-    yum clean all && \
-    yum -y install curl \
-    yum -y install wget
-
-# Code file to execute when the docker container starts up (`entrypoint.sh`)
-ENTRYPOINT ["/entrypoint.sh"]
+# 替换为存档仓库
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && \
+    yum update -y && \
+    yum install -y curl wget && \
+    yum clean all
