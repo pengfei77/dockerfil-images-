@@ -2,7 +2,7 @@
 FROM centos:7
 
 # Copies your code file from your action repository to the filesystem path `/` of the container
-RUN sed -i 's|mirrorlist.centos.org|mirrors.aliyun.com|g' /etc/yum.repos.d/CentOS-*.repo && \
+RUN yum update && \
     yum clean all && \
     yum -y install curl \
     yum -y install wget
