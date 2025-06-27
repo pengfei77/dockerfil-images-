@@ -9,7 +9,6 @@ RUN apt-get update && \
     vim \
     htop \
     net-tools \       # ifconfig, netstat 等
-    iproute2 \        # ip 命令（替代 ifconfig）
     tcpdump \
     lsof \
     jq \
