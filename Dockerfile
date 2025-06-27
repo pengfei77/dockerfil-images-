@@ -1,6 +1,6 @@
 FROM crpi-95ycgp634fv97mlw.cn-hangzhou.personal.cr.aliyuncs.com/pengfei-y/dm:nginx-1.21.6-arm64
 
-# 更新软件包列表并安装工具（使用 apt）
+# 更新并安装工具（Debian/Ubuntu）
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
@@ -8,15 +8,15 @@ RUN apt-get update && \
     git \
     vim \
     htop \
-    net-tools \       # ifconfig, netstat 等
-    tcpdump \
-    lsof \
-    jq \
+    net-tools \       # ifconfig/netstat
+    tcpdump \         # 网络抓包
+    lsof \            # 查看打开的文件
+    jq \              # JSON处理
     zip \
     unzip \
-    dnsutils \        # dig, nslookup
+    dnsutils \        # dig/nslookup
     iputils-ping \    # ping
     tmux \
     netcat-openbsd \  # nc
     strace \
-    && rm -rf /var/lib/apt/lists/*  # 清理缓存减小镜像体积
+    && rm -rf /var/lib/apt/lists/*
