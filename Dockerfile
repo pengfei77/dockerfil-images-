@@ -9,14 +9,9 @@ RUN apt-get update && \
     vim \
     htop \
     net-tools \       # ifconfig/netstat
-    tcpdump \         # 网络抓包
     lsof \            # 查看打开的文件
-    jq \              # JSON处理
     zip \
     unzip \
-    dnsutils \        # dig/nslookup
     iputils-ping \    # ping
-    tmux \
     netcat-openbsd \  # nc
-    strace \
     && rm -rf /var/lib/apt/lists/*
