@@ -9,7 +9,6 @@ RUN apt-get update && \
     vim \
     htop \
     net-tools \       # ifconfig/netstat
-    lsof \            # 查看打开的文件
     zip \
     unzip \
     iputils-ping \    # ping
