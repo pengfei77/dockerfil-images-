@@ -8,9 +8,9 @@ RUN apt-get update && \
     git \
     vim \
     htop \
-    net-tools \       # ifconfig/netstat
+    net-tools \      
     zip \
     unzip \
-    iputils-ping \    # ping
-    netcat-openbsd \  # nc
+    iputils-ping \   
+    netcat-openbsd \  
     && rm -rf /var/lib/apt/lists/*
