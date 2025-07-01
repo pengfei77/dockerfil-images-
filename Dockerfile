@@ -38,6 +38,7 @@ ENV MAVEN_CONFIG "/root/.m2"
 
 # 验证安装
 RUN mvn --version \
+    && docker -v
     && java -version \
     && echo "Installed Tools:" \
     && curl --version \
