@@ -19,8 +19,6 @@ RUN apt-get update && \
     netcat-openbsd \
     # 安装 Docker CLI（客户端工具）
     docker.io \
-    # 安装 kubectl（用于与 Kubernetes 交互）
-    kubectl \
     && rm -rf /var/lib/apt/lists/*
 
 # 安装 Maven 3.9.x
