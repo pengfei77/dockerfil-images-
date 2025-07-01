@@ -7,6 +7,7 @@ WORKDIR /app
 # 安装系统工具和 Maven 依赖
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+    docker \
     git \
     curl \
     wget \
