@@ -7,6 +7,7 @@ WORKDIR /app
 # 安装系统工具和 Maven 依赖
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+    git \
     curl \
     wget \
     vim \
@@ -45,4 +46,4 @@ RUN mvn --version \
     && nc -h
 
 # 默认命令（可覆盖）
-CMD ["mvn", "--version"]
+CMD ["mvn"]
