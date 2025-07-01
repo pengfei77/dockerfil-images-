@@ -19,6 +19,8 @@ RUN apt-get update && \
     netcat-openbsd \
     # 安装 Docker CLI（客户端工具）
     docker.io \
+    # 安装 kubectl（用于与 Kubernetes 交互）
+    kubectl \
     && rm -rf /var/lib/apt/lists/*
 
 # 安装 Maven 3.9.x
@@ -33,6 +35,17 @@ RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
     && rm -f /tmp/apache-maven.tar.gz \
     && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
 
+# 安装 Helm v2.17.0（最后一个稳定版本）
+ARG HELM_VERSION=2.17.0
+RUN curl -fsSL -o /tmp/helm.tar.gz https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz \
+    && tar -xzf /tmp/helm.tar.gz -C /tmp \
+    && mv /tmp/linux-amd64/helm /usr/local/bin/helm \
+    && mv /tmp/linux-amd64/tiller /usr/local/bin/tiller \
+    && rm -rf /tmp/helm.tar.gz /tmp/linux-amd64
+
+# 初始化 Helm（仅客户端，Tiller 需要额外部署）
+RUN helm init --client-only
+
 # 配置环境变量
 ENV MAVEN_HOME /usr/share/maven
 ENV MAVEN_CONFIG "/root/.m2"
@@ -40,6 +53,7 @@ ENV MAVEN_CONFIG "/root/.m2"
 # 验证安装
 RUN mvn --version \
     && docker --version \
+    && helm version --client \
     && java -version \
     && echo "Installed Tools:" \
     && curl --version \
