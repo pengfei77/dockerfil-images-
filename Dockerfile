@@ -4,12 +4,12 @@ FROM eclipse-temurin:17-jdk-jammy
 # 设置工作目录
 WORKDIR /app
 
-# 安装系统工具和 Maven 依赖
+# 安装系统工具和 Docker CLI（不安装 Docker 守护进程）
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    docker \
-    git \
+    ca-certificates \
     curl \
+    git \
     wget \
     vim \
     net-tools \
@@ -17,7 +17,8 @@ RUN apt-get update && \
     unzip \
     iputils-ping \
     netcat-openbsd \
-    ca-certificates \
+    # 安装 Docker CLI（客户端工具）
+    docker.io \
     && rm -rf /var/lib/apt/lists/*
 
 # 安装 Maven 3.9.x
@@ -38,7 +39,7 @@ ENV MAVEN_CONFIG "/root/.m2"
 
 # 验证安装
 RUN mvn --version \
-    && docker -v
+    && docker --version \
     && java -version \
     && echo "Installed Tools:" \
     && curl --version \
