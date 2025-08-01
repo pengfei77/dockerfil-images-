@@ -29,4 +29,4 @@ jobs:
       with:
         context: .  # Dockerfile 所在的目录路径
         push: true  # 设置为 true 以推送镜像到仓库
-        tags: crpi-95ycgp634fv97mlw.cn-hangzhou.personal.cr.aliyuncs.com/pengfei-y/dm:mvn3.9-jdk17  # 替换为你的命名空间和仓库名以及标签
+        tags: crpi-95ycgp634fv97mlw.cn-hangzhou.personal.cr.aliyuncs.com/pengfei-y/dm:jdk17-1  # 替换为你的命名空间和仓库名以及标签
