@@ -1,4 +1,4 @@
-FROM ubuntu:22.04-arm64v8
+FROM --platform=linux/arm64 ubuntu:22.04
 
 # 安装wget
 RUN apt-get update && \
