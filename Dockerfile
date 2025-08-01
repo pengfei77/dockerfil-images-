@@ -1,64 +1,25 @@
-# 使用官方 Eclipse Temurin JDK 17 镜像（基于 Ubuntu 22.04）
-FROM eclipse-temurin:17-jdk-jammy
+FROM ubuntu:22.04-arm64v8
 
-# 设置工作目录
-WORKDIR /app
-
-# 安装系统工具和 Docker CLI（不安装 Docker 守护进程）
+# 安装wget
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    ca-certificates \
-    curl \
-    git \
-    wget \
-    vim \
-    net-tools \
-    zip \
-    unzip \
-    iputils-ping \
-    netcat-openbsd \
-    # 安装 Docker CLI（客户端工具）
-    docker.io \
-    && rm -rf /var/lib/apt/lists/*
+    apt-get -y upgrade  && \
+    apt-get -y install wget
+#OpenGL依赖库
+RUN apt install libgl1-mesa-glx -y
+RUN apt-get install libfontconfig -y
+# OpenGL依赖字体
+RUN apt install fonts-dejavu -y
+RUN apt install fontconfig -y
+# curl命令
+RUN apt install curl -y
 
-# 安装 Maven 3.9.x
-ARG MAVEN_VERSION=3.9.10
-ARG MAVEN_SHA=4ef617e421695192a3e9a53b3530d803baf31f4269b26f9ab6863452d833da5530a4d04ed08c36490ad0f141b55304bceed58dbf44821153d94ae9abf34d0e1b
-ARG MAVEN_BASE_URL=https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries
+# 下载并解压JDK包
+RUN mkdir -p /usr/lib/jvm && \
+    cd /usr/lib/jvm && \
+    wget https://corretto.aws/downloads/resources/17.0.9.8.1/amazon-corretto-17.0.9.8.1-linux-aarch64.tar.gz && \
+    tar -xzvf amazon-corretto-17.0.9.8.1-linux-aarch64.tar.gz && \
+    rm amazon-corretto-17.0.9.8.1-linux-aarch64.tar.gz
 
-RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
-    && curl -fsSL -o /tmp/apache-maven.tar.gz ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
-    && echo "${MAVEN_SHA}  /tmp/apache-maven.tar.gz" | sha512sum -c - \
-    && tar -xzf /tmp/apache-maven.tar.gz -C /usr/share/maven --strip-components=1 \
-    && rm -f /tmp/apache-maven.tar.gz \
-    && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
-
-# 安装 Helm v2.17.0（最后一个稳定版本）
-ARG HELM_VERSION=2.17.0
-RUN curl -fsSL -o /tmp/helm.tar.gz https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz \
-    && tar -xzf /tmp/helm.tar.gz -C /tmp \
-    && mv /tmp/linux-amd64/helm /usr/local/bin/helm \
-    && mv /tmp/linux-amd64/tiller /usr/local/bin/tiller \
-    && rm -rf /tmp/helm.tar.gz /tmp/linux-amd64
-
-# 初始化 Helm（仅客户端，Tiller 需要额外部署）
-RUN helm init --client-only
-
-# 配置环境变量
-ENV MAVEN_HOME /usr/share/maven
-ENV MAVEN_CONFIG "/root/.m2"
-
-# 验证安装
-RUN mvn --version \
-    && docker --version \
-    && helm version --client \
-    && java -version \
-    && echo "Installed Tools:" \
-    && curl --version \
-    && wget --version \
-    && vim --version | head -n 1 \
-    && ping -V \
-    && nc -h
-
-# 默认命令（可覆盖）
-CMD ["mvn"]
+# 配置 Java 环境变量
+ENV JAVA_HOME /usr/lib/jvm/amazon-corretto-17.0.9.8.1-linux-aarch64
+ENV PATH=$PATH:$JAVA_HOME/bin
