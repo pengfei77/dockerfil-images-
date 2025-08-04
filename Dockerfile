@@ -16,10 +16,6 @@ RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.aliyun.com@g' /etc/apt/sources.li
     apt-get clean &&\
     rm -rf /var/lib/apt/lists/*
 
-RUN wget http://maven.saas.crland.com.cn/nexus/repository/static-files/openjdk/jdk8u44/jdk8u282-b08.tar  && \
-    tar -zxf jdk8u282-b08.tar && mv jdk8u282-b08 /usr/local/ && rm -rf /usr/local/jdk1.8.0_251 && rm -rf jdk8u282-b08.tar  \
-    ls -al /usr/local/jdk8u282-b08
-
 ENV JAVA_HOME /usr/local/jdk8u282-b08
 ENV CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
 ENV PATH $PATH:$JAVA_HOME/bin
