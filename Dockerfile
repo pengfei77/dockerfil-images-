@@ -16,10 +16,6 @@ RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.aliyun.com@g' /etc/apt/sources.li
     apt-get clean &&\
     rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_HOME /usr/local/jdk8u282-b08
-ENV CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
-ENV PATH $PATH:$JAVA_HOME/bin
 
-RUN java -version
 
 ENV LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8
