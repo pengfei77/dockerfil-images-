@@ -1,6 +1,6 @@
 # 应用基础镜像
-#FROM alpine:3.10
-FROM registry.saas.crland.com.cn/tools/alpine:3.10
+FROM alpine:3.10
+
 
 ##########x86 切换arm 架构注意事项#########
 # 替换如下包
