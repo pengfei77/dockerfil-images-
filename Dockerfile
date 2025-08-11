@@ -67,11 +67,11 @@ ARG DEPSALL="\
 #COPY tags/apk/aarch64 /etc/apk/aarch64/
 
 RUN set -x
-RUN echo "https://mirrors.aliyun.com/alpine/v3.10/main" >> /etc/apk/repositories
-RUN echo "https://mirrors.aliyun.com/alpine/v3.10/community" >> /etc/apk/repositories
+RUN echo "https://mirrors.aliyun.com/alpine/v3.10/main/aarch64" >> /etc/apk/repositories
+RUN echo "https://mirrors.aliyun.com/alpine/v3.10/community/aarch64" >> /etc/apk/repositories
 RUN echo "/etc/apk" >> /etc/apk/repositories
 RUN cat /etc/apk/repositories
-RUN apk --arch aarch64 add --no-cache $DEPSALL
+RUN apk add --no-cache $DEPSALL
 RUN curl -L -o /usr/local/bin/composer https://getcomposer.org/download/2.8.10/composer.phar
 RUN chmod +x /usr/local/bin/composer
 RUN ln -sf /dev/stdout /var/log/nginx/access.log
