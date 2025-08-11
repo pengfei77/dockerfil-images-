@@ -1,5 +1,5 @@
 # 应用基础镜像
-FROM alpine:3.10
+FROM --platform=linux/arm alpine:3.10
 
 
 ##########x86 切换arm 架构注意事项#########
@@ -71,7 +71,7 @@ RUN echo "https://mirrors.aliyun.com/alpine/v3.10/main" >> /etc/apk/repositories
 RUN echo "https://mirrors.aliyun.com/alpine/v3.10/community" >> /etc/apk/repositories
 RUN echo "/etc/apk" >> /etc/apk/repositories
 RUN cat /etc/apk/repositories
-RUN apk add --no-cache $DEPSALL
+RUN apk --arch aarch64 add --no-cache $DEPSALL
 RUN curl -L -o /usr/local/bin/composer https://getcomposer.org/download/2.8.10/composer.phar
 RUN chmod +x /usr/local/bin/composer
 RUN ln -sf /dev/stdout /var/log/nginx/access.log
