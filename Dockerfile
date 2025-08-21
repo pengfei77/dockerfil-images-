@@ -1,7 +1,7 @@
-FROM node:20-alpine
+FROM python:3.12
 
-# 安装 PNPM 10.15.0（全局安装）
-RUN apk add --no-cache \
+# 安装系统依赖和 PNPM 10.15.0
+RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
     git \
@@ -9,11 +9,5 @@ RUN apk add --no-cache \
     vim \
     net-tools \
     zip \
-    unzip
-
-# 安装指定版本的 PNPM
-RUN npm install -g pnpm@10.15.0
-
-# 验证安装
-RUN pnpm --version
-
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
