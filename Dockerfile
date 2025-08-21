@@ -1,13 +1,11 @@
-FROM python:3.12
+FROM python:3.12-alpine
 
-# 安装系统依赖和 PNPM 10.15.0
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
+# 安装系统工具（使用 apk）
+RUN apk add --no-cache \
     curl \
     git \
     wget \
-    vim \
-    net-tools \
-    zip \
-    unzip \
-    && rm -rf /var/lib/apt/lists/*
+    vim
+
+# 验证安装（可选）
+RUN curl --version && git --version && wget --version && vim --version
