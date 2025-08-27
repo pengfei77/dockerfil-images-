@@ -1,4 +1,7 @@
-FROM --platform linux/arm64 nginx:1.27.4
+FROM --platform=linux/arm64 nginx:1.27.4
+
+# 设置时区（可选）
+ENV TZ=Asia/Shanghai
 
 # 更新包列表并安装常用工具
 RUN apt-get update && \
@@ -13,4 +16,5 @@ RUN apt-get update && \
     dnsutils \
     procps \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/cache/apt/archives/
