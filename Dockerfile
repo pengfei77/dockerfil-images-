@@ -8,6 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         curl \
+        pnpm \
         ca-certificates \
         gnupg \
         software-properties-common && \
@@ -26,9 +27,7 @@ RUN curl -fsSL https://github.com/yarnpkg/yarn/releases/download/v1.22.22/yarn-v
     rm yarn.tar.gz
 
 # 4. 安装 pnpm
-RUN curl -fsSL https://get.pnpm.io/install.sh | sh - && \
-    mv /root/.local/share/pnpm/pnpm /usr/local/bin/pnpm && \
-    rm -rf /root/.local/share/pnpm
+RUN 
 
 # 5. 验证安装
 RUN node --version && \
