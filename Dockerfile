@@ -1,8 +1,19 @@
 FROM node:20-alpine
 
-WORKDIR /app
+# 设置 Yarn 和 pnpm 版本
+ENV YARN_VERSION=1.22.22
+ENV PNPM_VERSION=8.15.0
 
-# 方法 2：先卸载默认 Yarn，再安装 1.22.22
-RUN npm uninstall -g yarn && \
-    npm install -g yarn@1.22.22 && \
-    yarn --version
+# 安装 curl 用于下载
+RUN apk add --no-cache curl
+
+# 安装 Yarn
+RUN curl -fsSL https://github.com/yarnpkg/yarn/releases/download/v${YARN_VERSION}/yarn-v${YARN_VERSION}.tar.gz -o yarn.tar.gz && \
+    tar -xzf yarn.tar.gz && \
+    mv yarn-v${YARN_VERSION}/bin/yarn /usr/local/bin/ && \
+    mv yarn-v${YARN_VERSION}/bin/yarnpkg /usr/local/bin/ && \
+    rm -rf yarn-v${YARN_VERSION} yarn.tar.gz
+
+
+# 验证安装
+RUN node --version && yarn --version 
