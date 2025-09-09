@@ -1,20 +1,7 @@
-FROM --platform=linux/arm64 nginx:1.27.4
+FROM node:22-alpine
 
-# 设置时区（可选）
-ENV TZ=Asia/Shanghai
+# 设置工作目录
+WORKDIR /app
 
-# 更新包列表并安装常用工具
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    unzip \
-    curl \
-    wget \
-    vim \
-    nano \
-    net-tools \
-    iputils-ping \
-    dnsutils \
-    procps \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /var/cache/apt/archives/
+# 安装 pnpm（全局）
+RUN npm install -g pnpm
