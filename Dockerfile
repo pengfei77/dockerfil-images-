@@ -1,26 +1,23 @@
-FROM crpi-95ycgp634fv97mlw.cn-hangzhou.personal.cr.aliyuncs.com/pengfei-y/dm:hr_3
+FROM node:20-alpine
 
+# 设置 Yarn 和 pnpm 版本
+ENV YARN_VERSION=1.22.22
+ENV PNPM_VERSION=8.15.0
 
-# 设置时区（避免apt安装时交互提示）
-ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+# 安装 curl 用于下载
+RUN apk add --no-cache curl
 
-# 安装工具：
-# - curl: 网络请求工具
-# - net-tools: 提供 ifconfig
-# - wget: 文件下载工具
-# - htop: 进程监控工具
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        curl \
-        net-tools \
-        wget \
-        htop && \
-    rm -rf /var/lib/apt/lists/*
+# 安装 Yarn
+RUN curl -fsSL https://github.com/yarnpkg/yarn/releases/download/v${YARN_VERSION}/yarn-v${YARN_VERSION}.tar.gz -o yarn.tar.gz && \
+    tar -xzf yarn.tar.gz && \
+    mv yarn-v${YARN_VERSION}/bin/yarn /usr/local/bin/ && \
+    mv yarn-v${YARN_VERSION}/bin/yarnpkg /usr/local/bin/ && \
+    rm -rf yarn-v${YARN_VERSION} yarn.tar.gz
 
-# 验证工具是否安装成功（可选）
-RUN echo "Installed versions:" && \
-    curl --version && \
-    ifconfig --version && \
-    wget --version && \
-    htop --version
+# 安装 pnpm
+RUN curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=${PNPM_VERSION} sh - && \
+    mv /root/.local/share/pnpm/pnpm /usr/local/bin/pnpm && \
+    rm -rf /root/.local/share/pnpm
+
+# 验证安装
+RUN node --version && yarn --version && pnpm --version
