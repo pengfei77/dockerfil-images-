@@ -2,6 +2,7 @@ FROM node:20-alpine
 
 # 设置 Yarn 版本
 ENV YARN_VERSION=1.22.22
+ENV HELM_VERSION=2.17.0
 
 # 1. 删除预装的 Yarn
 RUN rm -f /usr/local/bin/yarn /usr/local/bin/yarnpkg
@@ -25,8 +26,7 @@ RUN curl -fsSL https://github.com/yarnpkg/yarn/releases/download/v${YARN_VERSION
     mv yarn-v${YARN_VERSION} /opt/yarn && \
     ln -s /opt/yarn/bin/yarn /usr/local/bin/yarn && \
     ln -s /opt/yarn/bin/yarnpkg /usr/local/bin/yarnpkg && \
-    rm yarn.tar.gz && \
-ARG HELM_VERSION=2.17.0
+    rm yarn.tar.gz 
 RUN curl -fsSL -o /tmp/helm.tar.gz https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz \
     && tar -xzf /tmp/helm.tar.gz -C /tmp \
     && mv /tmp/linux-amd64/helm /usr/local/bin/helm \
