@@ -3,7 +3,7 @@ FROM node:20-alpine
 # 设置 Yarn 版本
 ENV YARN_VERSION=1.22.22
 
-# 1. 删除预装的 Yarn（如果存在）
+# 1. 删除预装的 Yarn
 RUN rm -f /usr/local/bin/yarn /usr/local/bin/yarnpkg
 
 # 2. 安装依赖工具
