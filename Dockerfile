@@ -1,19 +1,22 @@
-FROM crpi-95ycgp634fv97mlw.cn-hangzhou.personal.cr.aliyuncs.com/pengfei-y/dm@sha256:b14f91297393417d7c6736cd6c5967a0b3794531caefecb2c06bc26c9ef7faea
 
-# 切换到 root 用户编译 jemalloc
+
+FROM crpi-95ycgp634fv97mlw.cn-hangzhou.personal.cr.aliyuncs.com/pengfei-y/dm:hr_2
+
+# 切换到 root 用户
 USER root
 
-RUN cp /opt/bitnami/scripts/redis-sentinel/run.sh /opt/bitnami/scripts/redis-sentinel/run.sh.orig
+# 更新源并安装大页兼容的 jemalloc
+RUN apt-get update && \
+    apt-get install -y libjemalloc2-arm64-largepage && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# 修改 run.sh 添加 LD_PRELOAD
-RUN sed -i '/info "\*\* Starting Redis Sentinel \*\*"/i \ \ \ \ export LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libjemalloc.so.2' \
-    /opt/bitnami/scripts/redis-sentinel/run.sh
+# 验证库文件是否存在
+RUN ls -la /usr/lib/aarch64-linux-gnu/libjemalloc-largepage.so.2
 
-# 验证修改是否成功
-RUN grep "LD_PRELOAD" /opt/bitnami/scripts/redis-sentinel/run.sh || echo "修改失败"
+# 设置环境变量（可选）
+ENV LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libjemalloc-largepage.so.2
 
 # 切换回非 root 用户
 USER 1001
 
-# 验证 jemalloc 库是否存在
-RUN ls -la /usr/lib/aarch64-linux-gnu/libjemalloc.so.2 || echo "jemalloc 库不存在"
