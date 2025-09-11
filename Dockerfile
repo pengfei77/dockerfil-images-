@@ -1,21 +1,29 @@
 
 
-FROM crpi-95ycgp634fv97mlw.cn-hangzhou.personal.cr.aliyuncs.com/pengfei-y/dm:hr_2
+FROM --platform=linux/arm64 bitnami/redis-sentinel:6.2.14-debian-12-r25
+
 
 # 切换到 root 用户
 USER root
 
-# 更新源并安装大页兼容的 jemalloc
-RUN apt-get update && \
-    apt-get install -y libjemalloc2-arm64-largepage && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# 创建空库替换 jemalloc
+RUN touch /tmp/empty.c && \
+    gcc -shared -o /usr/lib/fake_jemalloc.so /tmp/empty.c && \
+    ln -sf /usr/lib/fake_jemalloc.so /usr/lib/libjemalloc.so.2 && \
+    rm /tmp/empty.c
 
-# 验证库文件是否存在
-RUN ls -la /usr/lib/aarch64-linux-gnu/libjemalloc-largepage.so.2
+# 验证降级是否成功
+RUN bash -c '\
+    if ldd $(which redis-server) | grep -q "libjemalloc"; then \
+        echo "降级失败：jemalloc 仍在加载"; \
+        exit 1; \
+    else \
+        echo "降级成功：使用 libc"; \
+    fi'
 
-# 设置环境变量（可选）
-ENV LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libjemalloc-largepage.so.2
+# 可选：显式禁用 jemalloc（双重保障）
+ENV LD_PRELOAD=""
+
 
 # 切换回非 root 用户
 USER 1001
