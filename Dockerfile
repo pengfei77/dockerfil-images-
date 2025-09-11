@@ -1,12 +1,21 @@
 FROM --platform=linux/arm64 bitnami/redis-sentinel:6.2.14-debian-12-r25
+
+# 切换到 root 用户编译 jemalloc
 USER root
-RUN mkdir -p /var/lib/apt/lists/partial && \
-    apt-get update && \
-    apt-get install -y libjemalloc-dev && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y build-essential wget && \
+    wget https://github.com/jemalloc/jemalloc/releases/download/5.3.0/jemalloc-5.3.0.tar.bz2 && \
+    tar -xjf jemalloc-5.3.0.tar.bz2 && \
+    cd jemalloc-5.3.0 && \
+    ./configure --with-lg-page=16 && \  # 64KB = 2^16
+    make && make install && \
+    echo "/usr/local/lib" > /etc/ld.so.conf.d/jemalloc.conf && \
+    ldconfig && \
+    apt-get remove -y build-essential wget && \
+    rm -rf /var/lib/apt/lists/* /jemalloc-5.3.0*
 
-# 启用 jemalloc
-ENV LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libjemalloc.so.2
+# 启用新编译的 jemalloc
+ENV LD_PRELOAD=/usr/local/lib/libjemalloc.so.2
 
-   
+# 切换回非 root 用户
+USER 1001
