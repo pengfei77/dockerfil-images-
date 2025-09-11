@@ -8,5 +8,5 @@ RUN apt-get update && \
     cd jemalloc-5.3.0 && \
     ./configure --with-lg-page=16 && \
     make && \
-    make install && \
-    rm -rf jemalloc-5.3.0* /var/lib/apt/lists/*
+    make install 
+   
