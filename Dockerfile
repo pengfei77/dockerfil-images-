@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:16-alpine
 
 
 ENV HELM_VERSION=2.17.0
