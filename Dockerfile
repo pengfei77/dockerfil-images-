@@ -31,7 +31,6 @@ RUN helm init --client-only
     
 
 # 4. 验证安装
-RUN node --version && /opt/yarn/bin/yarn --version \
-    && docker --version \
+RUN docker --version \
     && helm version --client \
     && curl --version \
