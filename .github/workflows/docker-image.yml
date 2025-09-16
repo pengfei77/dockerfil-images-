@@ -2,7 +2,7 @@ name: Docker Build and Push to ACR
  
 on:
   push:
-    branches: [ "build-image" ]  # 或者你想要触发构建的分
+    branches: [ "build_Dockerfile" ]  # 或者你想要触发构建的分
  
 jobs:
   build-and-push:
