@@ -2,12 +2,11 @@ FROM crpi-95ycgp634fv97mlw.cn-hangzhou.personal.cr.aliyuncs.com/pengfei-y/dm:hr_
 ENV LANG C.UTF-8
 ENV TZ Asia/Shanghai
 
-# 配置阿里云镜像源（加速apk包下载）
-RUN echo "https://mirrors.aliyun.com/alpine/v3.11/main/" > /etc/apk/repositories && \
-    echo "https://mirrors.aliyun.com/alpine/v3.11/community/" >> /etc/apk/repositories
+# 使用 Alpine 官方镜像源
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.11/main/" > /etc/apk/repositories && \
+    echo "https://dl-cdn.alpinelinux.org/alpine/v3.11/community/" >> /etc/apk/repositories
 
-# 更新apk索引并安装LibreOffice
+# 更新并安装
 RUN apk update && \
     apk add --no-cache libreoffice && \
-    # 清理apk缓存（减小镜像体积）
     rm -rf /var/cache/apk/*
