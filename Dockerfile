@@ -1,5 +1,4 @@
-FROM  registry.saas.crland.com.cn/tools/python:3.10-linuxarm64
-
+FROM  swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/python:3.10-linuxarm64
 # 设置工作目录
 WORKDIR /app
 
