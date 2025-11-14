@@ -1,4 +1,4 @@
-FROM centos:8 --platform=linux/arm64
+FROM --platform=linux/arm64 centos:8
 RUN set -eu; \
     # 解决 CentOS 8 源失效问题
     sed -i 's|^mirrorlist=|#mirrorlist=|g' /etc/yum.repos.d/CentOS-Linux-* && \
