@@ -1,4 +1,4 @@
-# Kubernetes Secrets Controller
+# Kubernetes Secrets Controller#
 
 一个基于 client-go 的 Kubernetes 控制器，用于自动监听 Namespace 创建事件并在新创建的 Namespace 中自动创建 TLS Secret。
 
