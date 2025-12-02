@@ -15,10 +15,6 @@ spec:
     metadata:
       labels:
         app: secrets-controller
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
-        prometheus.io/path: "/metrics"
     spec:
       serviceAccountName: secrets-controller
       containers:
@@ -36,30 +32,14 @@ spec:
           value: "2"
         - name: RESYNC_PERIOD
           value: "30"
-        - name: METRICS_PORT
-          value: "8080"
         - name: LOG_LEVEL
           value: "info"
         - name: LOG_FORMAT
           value: "json"
         - name: EXCLUDE_PREFIXES
           value: "kube-"
-        ports:
-        - containerPort: 8080
-          name: metrics
-          protocol: TCP
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 5
+
+        # 健康检查已移除，因为移除了监控功能
         resources:
           requests:
             memory: "64Mi"
@@ -67,15 +47,7 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "200m"
-        volumeMounts:
-        - name: cert-volume
-          mountPath: /etc/secrets-controller
-          readOnly: true
-      volumes:
-      - name: cert-volume
-        secret:
-          secretName: controller-certificates
-          optional: false
+        # 不再需要证书挂载卷，证书文件通过本地路径提供
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000

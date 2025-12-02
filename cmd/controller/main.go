@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -12,7 +11,6 @@ import (
 	"k8s-secrets-controller/pkg/config"
 	"k8s-secrets-controller/pkg/controller"
 	"k8s-secrets-controller/pkg/logger"
-	"k8s-secrets-controller/pkg/metrics"
 )
 
 // 版本信息
@@ -49,29 +47,8 @@ func main() {
 	log.Info("启动Kubernetes Secrets控制器")
 	log.Infof("配置: %+v", cfg)
 
-	// 创建指标管理器
-	metricsManager := metrics.NewMetrics()
-
-	// 启动指标服务器
-	go func() {
-		log.Infof("启动指标服务器，端口: %d", cfg.MetricsPort)
-		
-		http.Handle("/metrics", metricsManager.GetMetricsHandler())
-		http.HandleFunc("/health", healthHandler)
-		http.HandleFunc("/ready", readyHandler)
-		
-		server := &http.Server{
-			Addr: fmt.Sprintf(":%d", cfg.MetricsPort),
-		}
-		
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Errorf("指标服务器启动失败: %v", err)
-			os.Exit(1)
-		}
-	}()
-
 	// 创建控制器
-	ctrl, err := controller.NewController(cfg, log, metricsManager)
+	ctrl, err := controller.NewController(cfg, log)
 	if err != nil {
 		log.Errorf("创建控制器失败: %v", err)
 		os.Exit(1)
@@ -108,16 +85,4 @@ func main() {
 		log.Errorf("控制器运行错误: %v", err)
 		os.Exit(1)
 	}
-}
-
-// healthHandler 健康检查处理器
-func healthHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
-}
-
-// readyHandler 就绪检查处理器
-func readyHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
 }

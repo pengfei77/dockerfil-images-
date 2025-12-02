@@ -7,9 +7,9 @@ import (
 
 // Config 控制器配置
 type Config struct {
-	// 证书文件路径
-	CertFilePath string `env:"CERT_FILE_PATH" default:"/fixed/path/cert.crt"`
-	KeyFilePath  string `env:"KEY_FILE_PATH" default:"/fixed/path/key.key"`
+	// 证书文件路径（必须提供）
+	CertFilePath string `env:"CERT_FILE_PATH"`
+	KeyFilePath  string `env:"KEY_FILE_PATH"`
 	
 	// Secret配置
 	SecretName string `env:"SECRET_NAME" default:"tls-secret"`
@@ -50,7 +50,13 @@ func LoadConfig() *Config {
 
 // Validate 验证配置
 func (c *Config) Validate() error {
-	// 注意：在构建阶段不验证证书文件是否存在，因为证书文件是在运行时才提供的
+	// 验证证书文件路径
+	if c.CertFilePath == "" {
+		return &ConfigError{Field: "CERT_FILE_PATH", Message: "证书文件路径不能为空"}
+	}
+	if c.KeyFilePath == "" {
+		return &ConfigError{Field: "KEY_FILE_PATH", Message: "私钥文件路径不能为空"}
+	}
 	
 	// 验证Secret名称
 	if c.SecretName == "" {

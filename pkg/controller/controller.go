@@ -18,7 +18,6 @@ import (
 	"k8s-secrets-controller/pkg/config"
 	"k8s-secrets-controller/pkg/k8s"
 	"k8s-secrets-controller/pkg/logger"
-	"k8s-secrets-controller/pkg/metrics"
 )
 
 // Controller Kubernetes控制器
@@ -26,7 +25,6 @@ type Controller struct {
 	clientset     *kubernetes.Clientset
 	config        *config.Config
 	logger        logger.Logger
-	metrics       *metrics.Metrics
 	
 	namespaceInformer cache.SharedIndexInformer
 	workqueue        workqueue.RateLimitingInterface
@@ -36,7 +34,7 @@ type Controller struct {
 }
 
 // NewController 创建新的控制器
-func NewController(cfg *config.Config, logger logger.Logger, metrics *metrics.Metrics) (*Controller, error) {
+func NewController(cfg *config.Config, logger logger.Logger) (*Controller, error) {
 	// 创建Kubernetes客户端
 	k8sClient, err := k8s.NewClient()
 	if err != nil {
@@ -52,7 +50,6 @@ func NewController(cfg *config.Config, logger logger.Logger, metrics *metrics.Me
 		clientset: clientset,
 		config:    cfg,
 		logger:    logger,
-		metrics:   metrics,
 		workqueue: workqueue.NewNamedRateLimitingQueue(
 			workqueue.DefaultControllerRateLimiter(),
 			"Namespaces",
@@ -145,8 +142,6 @@ func (c *Controller) processNextItem() bool {
 
 // processNamespace 处理命名空间
 func (c *Controller) processNamespace(key string) error {
-	startTime := time.Now()
-	
 	// 从缓存中获取命名空间对象
 	obj, exists, err := c.namespaceInformer.GetIndexer().GetByKey(key)
 	if err != nil {
@@ -185,11 +180,6 @@ func (c *Controller) processNamespace(key string) error {
 		return fmt.Errorf("创建TLS Secret失败: %v", err)
 	}
 	
-	// 记录指标
-	duration := time.Since(startTime)
-	c.metrics.RecordOperationDuration("create_secret", namespace.Name, duration)
-	c.metrics.RecordSecretCreated(namespace.Name, c.config.SecretName)
-	
 	c.logger.Infof("成功为命名空间创建TLS Secret: %s", namespace.Name)
 	
 	return nil
@@ -198,9 +188,6 @@ func (c *Controller) processNamespace(key string) error {
 // handleNamespaceAdd 处理命名空间添加事件
 func (c *Controller) handleNamespaceAdd(obj interface{}) {
 	namespace := obj.(*corev1.Namespace)
-	
-	// 记录指标
-	c.metrics.RecordNamespaceCreated(namespace.Name)
 	
 	// 添加到工作队列
 	key, err := cache.MetaNamespaceKeyFunc(obj)
@@ -223,9 +210,6 @@ func (c *Controller) handleNamespaceUpdate(oldObj, newObj interface{}) {
 		return
 	}
 	
-	// 记录指标
-	c.metrics.RecordNamespaceCreated(newNamespace.Name)
-	
 	// 添加到工作队列
 	key, err := cache.MetaNamespaceKeyFunc(newObj)
 	if err != nil {
@@ -242,9 +226,6 @@ func (c *Controller) handleNamespaceDelete(obj interface{}) {
 	namespace := obj.(*corev1.Namespace)
 	
 	c.logger.Infof("命名空间已删除: %s", namespace.Name)
-	
-	// 更新指标
-	c.metrics.SetTotalNamespaces(c.getTotalNamespaces() - 1)
 }
 
 // checkSecretExists 检查Secret是否存在
@@ -264,7 +245,6 @@ func (c *Controller) createTLSSecret(namespace string) error {
 	// 读取证书文件
 	certData, keyData, err := c.config.GetCertificateData()
 	if err != nil {
-		c.metrics.RecordSecretError(namespace, "certificate_read_error")
 		return fmt.Errorf("读取证书文件失败: %v", err)
 	}
 	
@@ -283,7 +263,6 @@ func (c *Controller) createTLSSecret(namespace string) error {
 	
 	_, err = c.clientset.CoreV1().Secrets(namespace).Create(c.ctx, secret, metav1.CreateOptions{})
 	if err != nil {
-		c.metrics.RecordSecretError(namespace, "creation_failed")
 		return fmt.Errorf("创建Secret失败: %v", err)
 	}
 	

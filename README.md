@@ -9,9 +9,7 @@
 - ✅ 支持通过环境变量配置证书路径
 - ✅ 排除 kube-* 系统 Namespace 的处理
 - ✅ 完善的错误处理和日志系统
-- ✅ Prometheus 指标暴露功能
 - ✅ 完整的 RBAC 配置示例
-- ✅ 健康检查和就绪检查
 - ✅ 优雅停止和信号处理
 
 ## 架构设计
@@ -37,11 +35,6 @@
    - Namespace 事件监听
    - 工作队列和重试机制
    - TLS Secret 创建逻辑
-
-5. **指标监控** (`pkg/metrics/`)
-   - Prometheus 指标收集
-   - 操作耗时统计
-   - 错误率监控
 
 ### 数据流
 
@@ -97,12 +90,11 @@ export KEY_FILE_PATH=/fixed/path/key.key
 
 | 变量名 | 默认值 | 说明 |
 |--------|--------|------|
-| `CERT_FILE_PATH` | `/fixed/path/cert.crt` | 证书文件路径 |
-| `KEY_FILE_PATH` | `/fixed/path/key.key` | 私钥文件路径 |
+| `CERT_FILE_PATH` | **必须提供** | 证书文件路径（容器内路径） |
+| `KEY_FILE_PATH` | **必须提供** | 私钥文件路径（容器内路径） |
 | `SECRET_NAME` | `tls-secret` | 创建的 Secret 名称 |
 | `THREADINESS` | `2` | 工作器线程数 |
 | `RESYNC_PERIOD` | `30` | Informer 重新同步周期（秒） |
-| `METRICS_PORT` | `8080` | 指标服务器端口 |
 | `LOG_LEVEL` | `info` | 日志级别 |
 | `LOG_FORMAT` | `text` | 日志格式（text/json） |
 | `EXCLUDE_PREFIXES` | `kube-` | 排除的 Namespace 前缀 |
@@ -124,7 +116,6 @@ data:
     secretName: tls-secret
     threadiness: 2
     resyncPeriod: 30
-    metricsPort: 8080
     logLevel: info
     logFormat: json
     excludePrefixes: kube-
@@ -138,19 +129,12 @@ data:
 kubectl apply -f deploy/rbac.yaml
 ```
 
-### 2. 创建证书 Secret
+### 2. 准备证书文件
 
-```bash
-# 生成证书并创建 Secret
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout key.key -out cert.crt \
-  -subj "/CN=secrets-controller/O=system"
-
-kubectl create secret generic controller-certificates \
-  --namespace=kube-system \
-  --from-file=cert.crt \
-  --from-file=key.key
-```
+将证书文件放置在容器内可访问的路径，例如：
+- 使用 PersistentVolume 挂载
+- 使用 ConfigMap 存储证书内容
+- 在构建镜像时包含证书文件
 
 ### 3. 部署控制器
 
@@ -166,43 +150,9 @@ kubectl get pods -n kube-system -l app=secrets-controller
 
 # 查看日志
 kubectl logs -n kube-system -l app=secrets-controller
-
-# 测试指标端点
-kubectl port-forward -n kube-system deployment/secrets-controller 8080:8080
-curl http://localhost:8080/metrics
 ```
 
-## 监控指标
 
-控制器暴露以下 Prometheus 指标：
-
-### 计数器指标
-
-- `k8s_secrets_controller_namespace_created_total` - Namespace 创建事件总数
-- `k8s_secrets_controller_secret_created_total` - TLS Secret 创建成功总数
-- `k8s_secrets_controller_secret_errors_total` - Secret 创建错误总数
-
-### 直方图指标
-
-- `k8s_secrets_controller_operation_duration_seconds` - 操作耗时分布
-
-### 仪表指标
-
-- `k8s_secrets_controller_total_namespaces` - 监控的 Namespace 总数
-- `k8s_secrets_controller_total_secrets` - 管理的 TLS Secret 总数
-
-### 示例查询
-
-```promql
-# 最近5分钟内的Secret创建成功率
-rate(k8s_secrets_controller_secret_created_total{status="success"}[5m])
-
-# 平均Secret创建耗时
-histogram_quantile(0.95, rate(k8s_secrets_controller_operation_duration_seconds_bucket[5m]))
-
-# 错误率
-rate(k8s_secrets_controller_secret_errors_total[5m])
-```
 
 ## 开发指南
 
@@ -215,8 +165,7 @@ secrets-controller/
 │   ├── config/              # 配置管理
 │   ├── controller/          # 控制器核心逻辑
 │   ├── k8s/                 # Kubernetes 客户端封装
-│   ├── logger/              # 日志系统
-│   └── metrics/             # 指标监控
+│   └── logger/              # 日志系统
 ├── deploy/                  # 部署配置文件
 ├── build.sh                 # 构建脚本
 ├── Dockerfile              # 容器镜像构建
@@ -225,15 +174,11 @@ secrets-controller/
 
 ### 添加新功能
 
-1. **添加新的监控指标**
-   - 在 `pkg/metrics/metrics.go` 中定义新指标
-   - 在控制器中记录指标数据
-
-2. **扩展配置选项**
+1. **扩展配置选项**
    - 在 `pkg/config/config.go` 中添加新字段
    - 更新环境变量处理逻辑
 
-3. **添加新的资源监听**
+2. **添加新的资源监听**
    - 创建新的 Informer
    - 添加事件处理器
    - 更新 RBAC 权限
