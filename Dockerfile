@@ -6,7 +6,7 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o secrets-controller ./cmd/controller
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o /secrets-controller ./cmd/controller
 
 # 运行阶段 - ARM64
 FROM --platform=linux/arm64 alpine:latest
@@ -15,10 +15,11 @@ RUN apk --no-cache add ca-certificates tzdata curl
 RUN addgroup -g 1000 -S appgroup && \
     adduser -u 1000 -S appuser -G appgroup
 
-WORKDIR /root/
-COPY --from=builder /app/secrets-controller .
+# 复制到标准路径并设置权限
+COPY --from=builder --chown=appuser:appgroup /secrets-controller /usr/local/bin/
 RUN mkdir -p /fixed/path && chown -R appuser:appgroup /fixed/path
 
 USER appuser
 
-CMD ["./secrets-controller"]
+# 直接使用命令名（在PATH中）
+CMD ["secrets-controller"]
