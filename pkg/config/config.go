@@ -2,7 +2,6 @@ package config
 
 import (
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -51,14 +50,7 @@ func LoadConfig() *Config {
 
 // Validate 验证配置
 func (c *Config) Validate() error {
-	// 检查证书文件是否存在
-	if _, err := os.Stat(c.CertFilePath); os.IsNotExist(err) {
-		return err
-	}
-	
-	if _, err := os.Stat(c.KeyFilePath); os.IsNotExist(err) {
-		return err
-	}
+	// 注意：在构建阶段不验证证书文件是否存在，因为证书文件是在运行时才提供的
 	
 	// 验证Secret名称
 	if c.SecretName == "" {

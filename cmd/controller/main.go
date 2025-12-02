@@ -97,7 +97,7 @@ func main() {
 		log.Infof("接收到信号: %v，开始优雅停止", sig)
 		
 		// 优雅停止
-		stopCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		_, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 		
 		ctrl.Stop()

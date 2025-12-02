@@ -123,8 +123,9 @@ func (m *Metrics) updateTotalSecrets(delta int) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	
-	currentValue := m.totalSecrets.Get()
-	m.totalSecrets.Set(currentValue + float64(delta))
+	// 由于prometheus.Gauge没有Get方法，我们使用单独的计数器来跟踪当前值
+	// 这里我们直接增加delta值，因为无法直接获取当前值
+	m.totalSecrets.Add(float64(delta))
 }
 
 // StartMetricsServer 启动指标服务器
