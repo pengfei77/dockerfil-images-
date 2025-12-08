@@ -1,1 +1,1 @@
-FROM keking/kkfileview-jdk:4.1.1
+FROM keking/kkfileview-base:4.4.0
