@@ -14,7 +14,6 @@ RUN apk add --no-cache --update \
     wget \
     telnet \
     unzip \
-WORKDIR /app
 
 EXPOSE 3000
 CMD ["node"]
