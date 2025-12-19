@@ -6,6 +6,14 @@ RUN npm install -g pnpm@10.22.0
 
 # 验证安装
 RUN node --version && pnpm --version
+RUN apk add --no-cache tzdata
+RUN corepack enable
+RUN pnpm add -g pm2 \
+    && mkdir /.pm2 \
+    && chown -R 1001:0 /.pm2 /app/web \
+    && chmod -R g=u /.pm2 /app/web
+
+
 
 # 设置默认命令
 CMD ["node"]
