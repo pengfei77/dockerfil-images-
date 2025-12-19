@@ -1,18 +1,11 @@
-FROM node:20-alpine3.19
+# 使用Node.js 22官方镜像作为基础镜像
+FROM node:22-alpine
 
+# 安装指定版本的pnpm
+RUN npm install -g pnpm@10.22.0
 
-RUN npm install -g npm@9
+# 验证安装
+RUN node --version && pnpm --version
 
-
-RUN npm cache clean --force && \
-    rm -rf /tmp/* /var/tmp/*
-
-RUN apk add --no-cache --update \
-    curl \
-    wget \
-    busybox-extras \ 
-    bind-tools \
-    unzip
-
-EXPOSE 3000
+# 设置默认命令
 CMD ["node"]
