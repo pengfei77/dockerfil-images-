@@ -1,1 +1,1 @@
-FROM node:11.0.0
+FROM  zcube/bitnami-compat-postgresql:12.14.0-debian-11
