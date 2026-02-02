@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk
+FROM openjdk:8u402-jdk
 
 # 切换为 root 用户安装软件
 USER root
