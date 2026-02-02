@@ -1,4 +1,4 @@
-FROM openjdk:8u402-jdk
+FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/openjdk:8-jdk
 
 # 切换为 root 用户安装软件
 USER root
