@@ -1,4 +1,5 @@
 FROM node:24-alpine
+ENV HELM_VERSION=2.17.0
 
 
 # 2. 安装依赖工具
