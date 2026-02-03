@@ -116,13 +116,7 @@ RUN mkdir -p /opt/libreoffice6.3 && cd /opt/libreoffice6.3 && \
            LibreOffice_6.3.2.2_Linux_x86-64_deb_langpack_zh-CN.tar.gz \
            LibreOffice_6.3.2.2_Linux_x86-64_deb \
            LibreOffice_6.3.2.2_Linux_x86-64_deb_langpack_zh-CN && \
-    echo "创建软链接..." && \
-    # 创建软链接
-    for file in /opt/libreoffice6.3/program/*; do \
-        if [ -f "$file" ] && [ -x "$file" ]; then \
-            ln -sf "$file" /usr/local/bin/; \
-        fi; \
-    done && \
+
     echo "修复依赖..." && \
     # 修复依赖
     apt-get update && apt-get install -f -y && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -142,45 +136,16 @@ RUN mkdir -p /opt/wkhhtml/bin /tmp/wkhtml && cd /tmp/wkhtml && \
     cd / && rm -rf /tmp/wkhtml && \
     chmod +x /opt/wkhhtml/bin/*
 
-# 设置 wkhtmltopdf 的环境变量和链接
-RUN echo '#!/bin/bash
-if [ -n "$DISPLAY" ]; then
-    /opt/wkhhtml/bin/wkhtmltopdf "$@"
-else
-    xvfb-run -a --server-args="-screen 0, 1024x768x24" /opt/wkhhtml/bin/wkhtmltopdf "$@"
-fi' > /usr/local/bin/wkhtmltopdf && \
-    chmod +x /usr/local/bin/wkhtmltopdf
+
 
 # 设置时区
 RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone
 
-# 设置语言环境
-RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
-    locale-gen
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
 
-# 设置环境变量
-ENV LIBREOFFICE_HOME=/opt/libreoffice6.3
-ENV WKHHTML_HOME=/opt/wkhhtml
-ENV PATH=$LIBREOFFICE_HOME/program:$WKHHTML_HOME/bin:$PATH
-ENV LD_LIBRARY_PATH=$WKHHTML_HOME/lib:$LD_LIBRARY_PATH
 
-# 验证安装
-RUN echo "=== 验证安装的工具版本 ===" && \
-    echo "Java version:" && java -version 2>&1 | head -3 && \
-    echo -e "\nLibreOffice version:" && /opt/libreoffice6.3/program/soffice --version 2>&1 && \
-    echo -e "\nwkhtmltopdf version:" && /opt/wkhhtml/bin/wkhtmltopdf --version 2>&1 && \
-    echo -e "\n=== 安装目录验证 ===" && \
-    echo "LibreOffice 6.3.2.2 安装位置: /opt/libreoffice6.3" && \
-    ls -la /opt/libreoffice6.3/program/soffice && \
-    echo -e "\nwkhtmltopdf 安装位置: /opt/wkhhtml/bin" && \
-    ls -la /opt/wkhhtml/bin/wkhtmltopdf
 
-# 设置工作目录
-WORKDIR /workspace
+
 
 # 默认启动命令
 CMD ["bash"]
