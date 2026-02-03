@@ -91,50 +91,7 @@ RUN apt-get update && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装 LibreOffice 6.3.2.2 到 /opt/libreoffice6.3
-RUN mkdir -p /opt/libreoffice6.3 && cd /opt/libreoffice6.3 && \
-    echo "正在下载 LibreOffice 6.3.2.2..." && \
-    # 从图片显示的网址下载
-    wget https://downloadarchive.documentfoundation.org/libreoffice/old/6.3.2.2/deb/x86_64/LibreOffice_6.3.2.2_Linux_x86-64_deb.tar.gz && \
-    wget https://downloadarchive.documentfoundation.org/libreoffice/old/6.3.2.2/deb/x86_64/LibreOffice_6.3.2.2_Linux_x86-64_deb_langpack_zh-CN.tar.gz && \
-    echo "下载完成，开始解压..." && \
-    # 解压
-    tar -xzf LibreOffice_6.3.2.2_Linux_x86-64_deb.tar.gz && \
-    tar -xzf LibreOffice_6.3.2.2_Linux_x86-64_deb_langpack_zh-CN.tar.gz && \
-    echo "正在安装主程序..." && \
-    # 安装主程序
-    cd LibreOffice_6.3.2.2_Linux_x86-64_deb/DEBS/ && \
-    dpkg -i *.deb || apt-get install -f -y && \
-    echo "正在安装中文语言包..." && \
-    # 安装中文语言包
-    cd ../../LibreOffice_6.3.2.2_Linux_x86-64_deb_langpack_zh-CN/DEBS/ && \
-    dpkg -i *.deb || apt-get install -f -y && \
-    echo "清理临时文件..." && \
-    # 清理临时文件
-    cd /opt/libreoffice6.3 && \
-    rm -rf LibreOffice_6.3.2.2_Linux_x86-64_deb.tar.gz \
-           LibreOffice_6.3.2.2_Linux_x86-64_deb_langpack_zh-CN.tar.gz \
-           LibreOffice_6.3.2.2_Linux_x86-64_deb \
-           LibreOffice_6.3.2.2_Linux_x86-64_deb_langpack_zh-CN && \
 
-    echo "修复依赖..." && \
-    # 修复依赖
-    apt-get update && apt-get install -f -y && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# 安装 wkhtmltopdf 到 /opt/wkhhtml/bin
-RUN mkdir -p /opt/wkhhtml/bin /tmp/wkhtml && cd /tmp/wkhtml && \
-    # 下载 wkhtmltopdf
-    wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb && \
-    # 提取 deb 包中的文件
-    dpkg -x wkhtmltox_0.12.6-1.buster_amd64.deb . && \
-    # 复制可执行文件到 /opt/wkhhtml/bin
-    cp -r usr/local/bin/* /opt/wkhhtml/bin/ && \
-    # 复制库文件到 /opt/wkhhtml/lib
-    mkdir -p /opt/wkhhtml/lib && \
-    cp -r usr/local/lib/* /opt/wkhhtml/lib/ 2>/dev/null || true && \
-    # 清理临时文件
-    cd / && rm -rf /tmp/wkhtml && \
-    chmod +x /opt/wkhhtml/bin/*
 
 
 
