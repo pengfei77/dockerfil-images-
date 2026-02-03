@@ -45,29 +45,6 @@ RUN apt-get update && \
     dpkg-dev \
     debhelper \
     build-essential \
-    # 图形和字体相关库
-    libxrender1 \
-    libfontconfig1 \
-    libxext6 \
-    libfreetype6 \
-    libpng16-16 \
-    libjpeg62-turbo \
-    libjpeg-turbo8 \
-    libxinerama1 \
-    libxcursor1 \
-    libxrandr2 \
-    libxft2 \
-    libcups2 \
-    libgl1-mesa-glx \
-    libgl1-mesa-dri \
-    libglu1-mesa \
-    # 虚拟显示服务器（xvfb）
-    xvfb \
-    # 其他实用工具
-    software-properties-common \
-    ca-certificates \
-    locales \
-    sudo \
     && rm -rf /var/lib/apt/lists/*
 
 # 注意：rpm 包本身是 Red Hat 系统的，在 Debian/Ubuntu 上通常不建议直接安装
