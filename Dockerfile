@@ -141,39 +141,14 @@ RUN mkdir -p /opt/wkhhtml/bin /tmp/wkhtml && cd /tmp/wkhtml && \
     # 清理临时文件
     cd / && rm -rf /tmp/wkhtml
 
-# 设置 wkhtmltopdf 的环境变量和链接
-RUN echo '#!/bin/bash\n\
-if [ -n "$DISPLAY" ]; then\n\
-    /opt/wkhhtml/bin/wkhtmltopdf "$@"\n\
-else\n\
-    xvfb-run -a --server-args="-screen 0, 1024x768x24" /opt/wkhhtml/bin/wkhtmltopdf "$@"\n\
-fi' > /usr/local/bin/wkhtmltopdf && \
-    chmod +x /usr/local/bin/wkhtmltopdf && \
-    chmod +x /opt/wkhhtml/bin/*
 
-# 创建配置文件目录
-RUN mkdir -p /opt/wkhhtml/etc && \
-    # 创建字体配置文件
-    echo '<?xml version="1.0"?>\n\
-<!DOCTYPE fontconfig SYSTEM "fonts.dtd">\n\
-<fontconfig>\n\
-  <dir>/usr/share/fonts</dir>\n\
-  <dir>/usr/local/share/fonts</dir>\n\
-  <cachedir>/var/cache/fontconfig</cachedir>\n\
-  <cachedir prefix="xdg">fontconfig</cachedir>\n\
-</fontconfig>' > /opt/wkhhtml/etc/fonts.conf
 
 # 设置时区
 RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone
 
 
-# 设置环境变量
-ENV LIBREOFFICE_HOME=/opt/libreoffice6.3
-ENV WKHHTML_HOME=/opt/wkhhtml
-ENV PATH=$LIBREOFFICE_HOME/program:$WKHHTML_HOME/bin:$PATH
-ENV LD_LIBRARY_PATH=$WKHHTML_HOME/lib:$LD_LIBRARY_PATH
-ENV FONTCONFIG_PATH=/opt/wkhhtml/etc
+
 
 
 # 验证安装的工具版本
