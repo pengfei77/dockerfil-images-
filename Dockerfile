@@ -1,33 +1,20 @@
-FROM node:24-alpine
-ENV HELM_VERSION=2.17.0
+# 基于原镜像
+FROM crpi-95ycgp634fv97mlw.cn-hangzhou.personal.cr.aliyuncs.com/pengfei-y/openjdk:8-jdk-v2
 
-
-# 2. 安装依赖工具
-
-RUN apk add --no-cache \
-    curl \
-    git \
-    wget \
-    vim \
-    net-tools \
-    zip \
-    unzip \
-    iputils \
-    netcat-openbsd \
-    docker-cli
-
-RUN curl -fsSL -o /tmp/helm.tar.gz https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz \
-    && tar -xzf /tmp/helm.tar.gz -C /tmp \
-    && mv /tmp/linux-amd64/helm /usr/local/bin/helm \
-    && mv /tmp/linux-amd64/tiller /usr/local/bin/tiller \
-    && rm -rf /tmp/helm.tar.gz /tmp/linux-amd64
-
-# 初始化 Helm（仅客户端，Tiller 需要额外部署）
-RUN helm init --client-only
-    
-
-# 4. 验证安装
-RUN node --version  \
-    && docker --version \
-    && helm version --client \
-    && curl --version \
+# 安装依赖（Debian/Ubuntu 系）
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libcups2 \
+        libxrender1 \
+        libfontconfig1 \
+        libxext6 \
+        libfreetype6 \
+        libpng16-16 \
+        libjpeg62-turbo \
+        libxinerama1 \
+        libxcursor1 \
+        libxrandr2 \
+        libxft2 \
+        libgl1-mesa-glx \
+        libgl1-mesa-dri && \
+    rm -rf /var/lib/apt/lists/*
