@@ -91,34 +91,41 @@ RUN apt-get update && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装 LibreOffice 6.3 到 /opt/libreoffice6.3
+# 安装 LibreOffice 6.3.2.2 到 /opt/libreoffice6.3
 RUN mkdir -p /opt/libreoffice6.3 && cd /opt/libreoffice6.3 && \
-    # 下载 LibreOffice 6.3.7.2
-    wget https://downloadarchive.documentfoundation.org/libreoffice/old/6.3.7.2/deb/x86_64/LibreOffice_6.3.7.2_Linux_x86-64_deb.tar.gz && \
-    wget https://downloadarchive.documentfoundation.org/libreoffice/old/6.3.7.2/deb/x86_64/LibreOffice_6.3.7.2_Linux_x86-64_deb_langpack_zh-CN.tar.gz && \
+    echo "正在下载 LibreOffice 6.3.2.2..." && \
+    # 从图片显示的网址下载
+    wget https://downloadarchive.documentfoundation.org/libreoffice/old/6.3.2.2/deb/x86_64/LibreOffice_6.3.2.2_Linux_x86-64_deb.tar.gz && \
+    wget https://downloadarchive.documentfoundation.org/libreoffice/old/6.3.2.2/deb/x86_64/LibreOffice_6.3.2.2_Linux_x86-64_deb_langpack_zh-CN.tar.gz && \
+    echo "下载完成，开始解压..." && \
     # 解压
-    tar -xzf LibreOffice_6.3.7.2_Linux_x86-64_deb.tar.gz && \
-    tar -xzf LibreOffice_6.3.7.2_Linux_x86-64_deb_langpack_zh-CN.tar.gz && \
+    tar -xzf LibreOffice_6.3.2.2_Linux_x86-64_deb.tar.gz && \
+    tar -xzf LibreOffice_6.3.2.2_Linux_x86-64_deb_langpack_zh-CN.tar.gz && \
+    echo "正在安装主程序..." && \
     # 安装主程序
-    cd LibreOffice_6.3.7.2_Linux_x86-64_deb/DEBS/ && \
-    dpkg -i *.deb && \
+    cd LibreOffice_6.3.2.2_Linux_x86-64_deb/DEBS/ && \
+    dpkg -i *.deb || apt-get install -f -y && \
+    echo "正在安装中文语言包..." && \
     # 安装中文语言包
-    cd ../../LibreOffice_6.3.7.2_Linux_x86-64_deb_langpack_zh-CN/DEBS/ && \
-    dpkg -i *.deb && \
+    cd ../../LibreOffice_6.3.2.2_Linux_x86-64_deb_langpack_zh-CN/DEBS/ && \
+    dpkg -i *.deb || apt-get install -f -y && \
+    echo "清理临时文件..." && \
     # 清理临时文件
     cd /opt/libreoffice6.3 && \
-    rm -rf LibreOffice_6.3.7.2_Linux_x86-64_deb.tar.gz \
-           LibreOffice_6.3.7.2_Linux_x86-64_deb_langpack_zh-CN.tar.gz \
-           LibreOffice_6.3.7.2_Linux_x86-64_deb \
-           LibreOffice_6.3.7.2_Linux_x86-64_deb_langpack_zh-CN && \
-    # 创建软链接到 /usr/local/bin
-    ln -sf /opt/libreoffice6.3/program/* /usr/local/bin/
-
-# 修复可能的依赖问题
-RUN apt-get update && \
-    apt-get install -f -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf LibreOffice_6.3.2.2_Linux_x86-64_deb.tar.gz \
+           LibreOffice_6.3.2.2_Linux_x86-64_deb_langpack_zh-CN.tar.gz \
+           LibreOffice_6.3.2.2_Linux_x86-64_deb \
+           LibreOffice_6.3.2.2_Linux_x86-64_deb_langpack_zh-CN && \
+    echo "创建软链接..." && \
+    # 创建软链接
+    for file in /opt/libreoffice6.3/program/*; do \
+        if [ -f "$file" ] && [ -x "$file" ]; then \
+            ln -sf "$file" /usr/local/bin/; \
+        fi; \
+    done && \
+    echo "修复依赖..." && \
+    # 修复依赖
+    apt-get update && apt-get install -f -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 安装 wkhtmltopdf 到 /opt/wkhhtml/bin
 RUN mkdir -p /opt/wkhhtml/bin /tmp/wkhtml && cd /tmp/wkhtml && \
@@ -129,18 +136,11 @@ RUN mkdir -p /opt/wkhhtml/bin /tmp/wkhtml && cd /tmp/wkhtml && \
     # 复制可执行文件到 /opt/wkhhtml/bin
     cp -r usr/local/bin/* /opt/wkhhtml/bin/ && \
     # 复制库文件到 /opt/wkhhtml/lib
-    cp -r usr/local/lib/* /opt/wkhhtml/ 2>/dev/null || true && \
-    # 复制共享文件
-    cp -r usr/local/share/* /opt/wkhhtml/ 2>/dev/null || true && \
-    cp -r usr/share/* /opt/wkhhtml/share/ 2>/dev/null || true && \
-    # 创建必要的目录结构
     mkdir -p /opt/wkhhtml/lib && \
-    mkdir -p /opt/wkhhtml/share && \
-    # 复制依赖的库文件
-    cp -r usr/lib/* /opt/wkhhtml/lib/ 2>/dev/null || true && \
+    cp -r usr/local/lib/* /opt/wkhhtml/lib/ 2>/dev/null || true && \
     # 清理临时文件
-    cd / && rm -rf /tmp/wkhtml
-
+    cd / && rm -rf /tmp/wkhtml && \
+    chmod +x /opt/wkhhtml/bin/*
 
 
 # 设置时区
@@ -149,26 +149,19 @@ RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
 
 
 
-
-
-# 验证安装的工具版本
+# 验证安装
 RUN echo "=== 验证安装的工具版本 ===" && \
     echo "Java version:" && java -version 2>&1 | head -3 && \
-    echo -e "\ncurl version:" && curl --version 2>&1 | head -1 && \
-    echo -e "\ngit version:" && git --version && \
-    echo -e "\nvim version:" && vim --version 2>&1 | head -1 && \
-    echo -e "\nlsof version:" && lsof --version 2>&1 | head -1 && \
-    echo -e "\nalien version:" && alien --version 2>&1 && \
-    echo -e "\nwkhtmltopdf version:" && /opt/wkhhtml/bin/wkhtmltopdf --version 2>&1 && \
     echo -e "\nLibreOffice version:" && /opt/libreoffice6.3/program/soffice --version 2>&1 && \
-    echo -e "\n=== 目录结构验证 ===" && \
-    echo "LibreOffice 安装位置:" && ls -la /opt/libreoffice6.3/ && \
-    echo -e "\nwkhtmltopdf 安装位置:" && ls -la /opt/wkhhtml/bin/
+    echo -e "\nwkhtmltopdf version:" && /opt/wkhhtml/bin/wkhtmltopdf --version 2>&1 && \
+    echo -e "\n=== 安装目录验证 ===" && \
+    echo "LibreOffice 6.3.2.2 安装位置: /opt/libreoffice6.3" && \
+    ls -la /opt/libreoffice6.3/program/soffice && \
+    echo -e "\nwkhtmltopdf 安装位置: /opt/wkhhtml/bin" && \
+    ls -la /opt/wkhhtml/bin/wkhtmltopdf
 
-# 切换回普通用户（如果需要）
-# USER appuser
-
-
+# 设置工作目录
+WORKDIR /workspace
 
 # 默认启动命令
 CMD ["bash"]
